@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptForge | Multimodal AI Architect</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        deep: 'var(--color-bg, #030508)',
+                        panel: 'var(--color-panel, rgba(13, 17, 23, 0.7))',
+                        primary: 'var(--color-primary, #00E5FF)',
+                        secondary: 'var(--color-secondary, #B026FF)',
+                        accent: 'var(--color-primary)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --color-bg: #030508;
+            --color-panel: rgba(13, 17, 23, 0.7);
+            --color-primary: #00E5FF;
+            --color-secondary: #B026FF;
+            --theme-glow: rgba(0, 229, 255, 0.2);
+            --bg-gradient: radial-gradient(circle at 50% 50%, #0d1117 0%, #030508 100%);
+        }
+
+        body {
+            background: var(--color-bg);
+            color: #F8F9FA;
+            overflow-x: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* Capas de Fondo Dinámico */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, var(--color-primary), transparent 40%),
+                radial-gradient(circle at 80% 70%, var(--color-secondary), transparent 40%);
+            opacity: 0.15;
+            filter: blur(80px);
+            z-index: -2;
+            transition: all 0.8s ease;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.62 0l4.38 4.38L54.62 8.76 50.24 4.38 54.62 0zM4.38 0L8.76 4.38 4.38 8.76 0 4.38 4.38 0zm25.12 25.12l4.38 4.38-4.38 8.76-8.76-4.38 4.38-8.76zM54.62 50.24l4.38 4.38-4.38 4.38-4.38-4.38 4.38-4.38zM4.38 50.24l4.38 4.38-4.38 4.38-4.38-4.38 4.38-4.38z' fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: -1;
+            mask-image: radial-gradient(circle, black, transparent 80%);
+        }
+
+        /* Colores Base y Themes Dinámicos */
+        .theme-purple {
+            --color-primary: #00E5FF;
+            --color-secondary: #B026FF;
+            --theme-glow: rgba(0, 229, 255, 0.4);
+        }
+
+        .theme-sunset {
+            --color-primary: #FFB026;
+            --color-secondary: #FF4D4D;
+            --theme-glow: rgba(255, 176, 38, 0.4);
+        }
+
+        .theme-emerald {
+            --color-primary: #00FF9D;
+            --color-secondary: #00BFFF;
+            --theme-glow: rgba(0, 255, 157, 0.4);
+        }
+
+        .theme-gold {
+            --color-primary: #FFD700;
+            --color-secondary: #FFA500;
+            --theme-glow: rgba(255, 215, 0, 0.4);
+        }
+
+        .theme-ruby {
+            --color-primary: #FF4D4D;
+            --color-secondary: #8B0000;
+            --theme-glow: rgba(255, 77, 77, 0.4);
+        }
+
+        .theme-acid {
+            --color-primary: #9DFF00;
+            --color-secondary: #008B00;
+            --theme-glow: rgba(157, 255, 0, 0.4);
+        }
+
+        .theme-ice {
+            --color-primary: #00FFFF;
+            --color-secondary: #0000FF;
+            --theme-glow: rgba(0, 255, 255, 0.4);
+        }
+
+        .theme-silver {
+            --color-primary: #FDFEFE;
+            --color-secondary: #7F8C8D;
+            --theme-glow: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-fire {
+            --color-primary: #FF0000;
+            --color-secondary: #FF8000;
+            --theme-glow: rgba(255, 0, 0, 0.4);
+        }
+
+        .theme-lavender {
+            --color-primary: #D7BDE2;
+            --color-secondary: #A569BD;
+            --theme-glow: rgba(215, 189, 226, 0.4);
+        }
+
+        body {
+            background: #000;
+            color: #F8F9FA;
+            overflow-x: hidden;
+            transition: all 0.6s ease;
+            position: relative;
+        }
+
+        /* CAPAS DE FONDO PARA TEMAS MÁS VISIBLES */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 10% 20%, var(--color-primary), transparent 45%),
+                radial-gradient(circle at 90% 80%, var(--color-secondary), transparent 45%);
+            opacity: 0.3;
+            /* Aumentado para más visibilidad */
+            filter: blur(100px);
+            z-index: -2;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.62 0l4.38 4.38L54.62 8.76 50.24 4.38 54.62 0zM4.38 0L8.76 4.38 4.38 8.76 0 4.38 4.38 0zm25.12 25.12l4.38 4.38-4.38 8.76-8.76-4.38 4.38-8.76zM54.62 50.24l4.38 4.38-4.38 4.38-4.38-4.38 4.38-4.38zM4.38 50.24l4.38 4.38-4.38 4.38-4.38-4.38 4.38-4.38z' fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #030508;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+
+        .glass-panel {
+            background: rgba(13, 17, 23, 0.7);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border:focus-within {
+            border-color: var(--color-primary) !important;
+            box-shadow: 0 0 20px var(--theme-glow);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: #000;
+            font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px var(--theme-glow);
+        }
+
+        /* FIJAR EL FONDO DE LOS DESPLEGABLES A NEGRO */
+        input,
+        select,
+        textarea {
+            background-color: #000 !important;
+            color: #fff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        select option {
+            background-color: #000 !important;
+            color: #fff !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--color-primary) !important;
+            box-shadow: 0 0 15px var(--theme-glow);
+            outline: none;
+        }
+
+        .theme-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .theme-dot:hover {
+            transform: scale(1.4);
+            border-color: #fff;
+            box-shadow: 0 0 15px var(--theme-glow);
+        }
+    </style>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col theme-purple">
+
+    <div class="bg-mesh"></div>
+    <div class="bg-pattern"></div>
+
+    <!-- Notificaciones (Toast) -->
+    <div id="toast" class="fixed top-5 right-5 transform translate-x-full transition-transform duration-300 z-50">
+        <div
+            class="glass-panel border-l-4 border-primary text-white p-4 rounded shadow-2xl flex items-center space-x-3">
+            <i id="toast-icon" class="fa-solid fa-robot text-primary"></i>
+            <span id="toast-msg" class="font-medium text-sm">Mensaje</span>
+        </div>
+    </div>
+
+    <!-- Pantalla de Inicio -->
+    <div id="home-screen"
+        class="flex-1 flex flex-col items-center justify-center p-6 min-h-screen relative z-10 transition-opacity duration-500">
+        <div class="z-10 text-center max-w-3xl">
+            <!-- Contenedor del Logo Robot -->
+            <div class="relative w-40 h-40 mx-auto mb-8">
+                <!-- Anillo Exterior Animado -->
+                <div
+                    class="absolute inset-0 border-[4px] border-t-primary border-r-secondary border-b-primary border-l-transparent rounded-full animate-[spin_8s_linear_infinite] opacity-80">
+                </div>
+                <!-- Pulso Interior -->
+                <div
+                    class="absolute inset-2 border-[2px] border-primary/30 rounded-full animate-[pulse_2s_ease-in-out_infinite]">
+                </div>
+                <!-- Icono Robot -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fa-solid fa-robot text-7xl gradient-text drop-shadow-[0_0_20px_var(--theme-glow)]"></i>
+                </div>
+            </div>
+
+            <h1 class="font-display text-7xl md:text-8xl font-bold mb-4 tracking-tighter italic">
+                Prompt<span class="gradient-text">Forge</span>
+            </h1>
+            <p class="text-gray-300 text-lg md:text-xl mb-12 font-sans font-medium tracking-wide">
+                Arquitectura Visual Inteligente. <span class="text-primary">Evoluciona</span> tu imaginación.
+            </p>
+
+            <button onclick="enterApp()"
+                class="btn-gradient px-14 py-5 rounded-full text-xl shadow-2xl flex items-center mx-auto space-x-4 tracking-tighter uppercase italic">
+                <span>Inicializar Estudio</span>
+                <i class="fa-solid fa-bolt-lightning text-black"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Área de Trabajo Principal -->
+    <div id="workspace" class="hidden flex-col min-h-screen w-full">
+
+        <!-- Barra de Navegación -->
+        <nav
+            class="glass-panel sticky top-0 z-40 border-b border-gray-800 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="goHome()">
+                <i
+                    class="fa-solid fa-robot text-2xl text-primary group-hover:rotate-180 transition-transform duration-500"></i>
+                <span class="font-display font-bold text-2xl tracking-tight">Prompt<span
+                        class="text-secondary">Forge</span></span>
+            </div>
+
+            <div class="flex items-center gap-4 flex-wrap justify-center">
+                <!-- Selector de Temas -->
+                <div class="flex items-center gap-2 bg-black/40 p-2 rounded-full border border-gray-700">
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #00E5FF, #B026FF)"
+                        onclick="changeTheme('purple')" title="Purple/Cyan"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #FFB026, #FF00E5)"
+                        onclick="changeTheme('sunset')" title="Sunset"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #00FF9D, #00BFFF)"
+                        onclick="changeTheme('emerald')" title="Emerald"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #FFD700, #FFA500)"
+                        onclick="changeTheme('gold')" title="Gold"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #FF4D4D, #8B0000)"
+                        onclick="changeTheme('ruby')" title="Ruby"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #9DFF00, #008B00)"
+                        onclick="changeTheme('acid')" title="Acid"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #00FFFF, #0000FF)"
+                        onclick="changeTheme('ice')" title="Ice"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #FDFEFE, #7F8C8D)"
+                        onclick="changeTheme('silver')" title="Silver"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #FF0000, #222222)"
+                        onclick="changeTheme('fire')" title="Fire"></div>
+                    <div class="theme-dot" style="background: linear-gradient(135deg, #C39BD3, #7D3C98)"
+                        onclick="changeTheme('lavender')" title="Lavender"></div>
+                </div>
+
+                <!-- Selector de Modelos -->
+                <div class="flex items-center space-x-3 w-full md:w-auto">
+                    <div class="relative w-full md:w-80">
+                        <select id="model-selector" onchange="updateModelHints()"
+                            class="appearance-none bg-panelHover border border-gray-600 text-white py-2.5 pl-4 pr-10 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-sm w-full font-semibold shadow-inner">
+                            <optgroup label="🎥 Video">
+                                <option value="veo">🎥 Veo 3.1</option>
+                                <option value="sora">🎬 Sora 2</option>
+                                <option value="grok_video">🧠 Grok Video</option>
+                                <option value="kling">🪄 Kling O1</option>
+                                <option value="runway">⚡ Runway Gen-3</option>
+                            </optgroup>
+                            <optgroup label="🖼️ Imagen">
+                                <option value="nanobanana">🍌 Nano Banana Pro</option>
+                                <option value="grok_image">🎨 Grok Image</option>
+                                <option value="dalle3">🖌️ DALL-E 3</option>
+                            </optgroup>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-primary">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenido Central -->
+        <main class="flex-1 max-w-[1400px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Columna Izquierda: Constructores -->
+            <div class="lg:col-span-8 space-y-6">
+
+                <!-- 1. Upload de Medios -->
+                <section class="glass-panel p-6 rounded-2xl border border-gray-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-cyanNeon"></div>
+                    <h2 class="font-display text-lg font-semibold mb-4 text-white flex items-center">
+                        <i class="fa-solid fa-cloud-arrow-up mr-3 text-cyanNeon"></i> Image-to-Video / Medios Base
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-widest">Enlace de Referencia
+                                (URL)</label>
+                            <input type="url" id="ref-url" placeholder="https://..."
+                                class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border transition-all"
+                                oninput="handleUrlInput()">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-widest">Subir Archivo</label>
+                            <div id="drop-zone"
+                                class="relative border-2 border-gray-700 border-dashed rounded-lg p-4 text-center hover:border-primary hover:bg-panelHover transition-all flex flex-col justify-center items-center h-[76px]"
+                                onclick="document.getElementById('file-upload').click()">
+                                <input type="file" id="file-upload" class="hidden" accept="image/*,video/*"
+                                    onchange="handleFileUpload(event)">
+                                <div id="upload-content" class="w-full flex flex-col items-center">
+                                    <i class="fa-solid fa-upload text-gray-400 mb-1 text-lg"></i>
+                                    <span class="text-xs text-gray-300 font-medium">Seleccionar imagen/video</span>
+                                </div>
+                                <div id="file-preview-container"
+                                    class="hidden w-full h-full absolute inset-0 bg-panelHover rounded-lg overflow-hidden flex items-center justify-between px-3 border border-primary">
+                                    <div class="flex items-center gap-3">
+                                        <div id="preview-thumbnail"
+                                            class="h-10 w-10 rounded bg-black bg-cover bg-center"></div>
+                                        <span id="preview-name"
+                                            class="text-xs text-white truncate max-w-[120px]"></span>
+                                    </div>
+                                    <button onclick="clearFileUpload(event)"
+                                        class="text-gray-400 hover:text-red-400 p-2"><i
+                                            class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="reverseEngineer()" id="btn-reverse"
+                        class="mt-5 w-full bg-[#1A1F2E] hover:bg-[#23293B] text-white border border-gray-600 py-3 rounded-lg text-sm font-medium transition-all flex justify-center items-center group">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2 text-secondary group-hover:animate-bounce"></i>
+                        Generar prompt de imagen/video
+                    </button>
+                </section>
+
+                <!-- 2. Escena y Acción -->
+                <section class="glass-panel p-6 rounded-2xl border border-gray-800">
+                    <h2
+                        class="font-display text-lg font-semibold mb-4 text-white flex items-center border-b border-gray-800 pb-3">
+                        <i class="fa-solid fa-clapperboard mr-3 text-gray-400"></i> La Escena y Acción Principal
+                    </h2>
+                    <div class="space-y-5 mt-4">
+                        <div class="relative">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-widest block mb-2">Descripción de
+                                la Acción (Sujeto + Verbo)</label>
+                            <textarea id="main-action" rows="3"
+                                placeholder="Sujeto + Acción detallada. Si no escribes nada, se generará uno profesional..."
+                                class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-4 text-sm focus:outline-none neon-border resize-none leading-relaxed text-gray-100"></textarea>
+                            <button onclick="autoImprove()"
+                                class="absolute bottom-3 right-3 text-xs bg-panel border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary transition-colors">
+                                <i class="fa-solid fa-sparkles mr-1"></i> Optimizar
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 3. ADN Visual -->
+                    <section class="glass-panel p-6 rounded-2xl border border-gray-800">
+                        <h2
+                            class="font-display text-lg font-semibold mb-4 text-white flex items-center border-b border-gray-800 pb-3">
+                            <i class="fa-solid fa-palette mr-3 text-gray-400"></i> ADN Visual
+                        </h2>
+                        <div class="space-y-6 mt-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-widest block">Estilo
+                                    Estético</label>
+                                <div class="flex flex-col gap-2">
+                                    <select id="visual-style"
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                    <input type="text" id="custom-visual-style"
+                                        placeholder="Escribe tu propio estilo aquí..."
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-widest block">Vestuario /
+                                    Look</label>
+                                <div class="flex flex-col gap-2">
+                                    <select id="subject-clothing"
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                    <input type="text" id="custom-clothing"
+                                        placeholder="Escribe tu propio vestuario aquí..."
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 4. Entorno -->
+                    <section class="glass-panel p-6 rounded-2xl border border-gray-800">
+                        <h2
+                            class="font-display text-lg font-semibold mb-4 text-white flex items-center border-b border-gray-800 pb-3">
+                            <i class="fa-solid fa-mountain-sun mr-3 text-gray-400"></i> Entorno
+                        </h2>
+                        <div class="space-y-6 mt-4">
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] text-gray-400 uppercase tracking-widest block">Locación</label>
+                                <div class="flex flex-col gap-2">
+                                    <select id="environment"
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                    <input type="text" id="custom-environment"
+                                        placeholder="Escribe tu propia locación aquí..."
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-widest block">Clima /
+                                    Elementos</label>
+                                <div class="flex flex-col gap-2">
+                                    <select id="weather"
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                    <input type="text" id="custom-weather" placeholder="Escribe tu propio clima aquí..."
+                                        class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 5. Técnica -->
+                <section class="glass-panel p-6 rounded-2xl border border-gray-800">
+                    <h2
+                        class="font-display text-lg font-semibold mb-4 text-white flex items-center border-b border-gray-800 pb-3">
+                        <i class="fa-solid fa-video mr-3 text-gray-400"></i> Cinematografía
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                        <div class="space-y-3">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-widest block">Tipo de
+                                Plano</label>
+                            <div class="flex flex-col gap-2">
+                                <select id="shot-type"
+                                    class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                <input type="text" id="custom-shot-type" placeholder="Escribe otro plano..."
+                                    class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-widest block">Óptica de
+                                Cámara</label>
+                            <div class="flex flex-col gap-2">
+                                <select id="camera-lens"
+                                    class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                <input type="text" id="custom-camera-lens" placeholder="Escribe otra óptica..."
+                                    class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                            </div>
+                        </div>
+                        <div class="space-y-3 md:col-span-2">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-widest block">Iluminación</label>
+                            <div class="flex flex-col gap-2">
+                                <select id="lighting"
+                                    class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-sm focus:outline-none neon-border"></select>
+                                <input type="text" id="custom-lighting" placeholder="Escribe otra iluminación..."
+                                    class="w-full bg-[#0a0e14] border border-gray-700 rounded-lg p-3 text-xs focus:outline-none neon-border">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Columna Derecha -->
+            <div class="lg:col-span-4 space-y-6 flex flex-col h-full">
+                <section
+                    class="glass-panel p-6 rounded-2xl border border-gray-800 flex-none relative overflow-hidden group">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-10 group-hover:opacity-20 transition duration-1000">
+                    </div>
+                    <div class="relative bg-black/40 h-full rounded-xl p-5 flex flex-col">
+                        <button onclick="generatePrompt()"
+                            class="w-full btn-gradient py-3.5 rounded-xl shadow-lg mb-4 uppercase text-xs font-black tracking-widest flex justify-center items-center">
+                            <i class="fa-solid fa-bolt mr-2"></i> Compilar Prompt
+                        </button>
+
+                        <div class="relative flex flex-col">
+                            <textarea id="output-prompt" readonly
+                                class="w-full h-40 bg-black/60 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-400 focus:outline-none resize-none mb-4 shadow-inner"
+                                placeholder="Estructurando ADN..."></textarea>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="copyPrompt()"
+                                    class="bg-panelHover hover:text-primary text-gray-400 py-2.5 rounded-lg text-[10px] font-bold border border-gray-800 uppercase tracking-tighter">
+                                    <i class="fa-regular fa-copy mr-1"></i> Copiar
+                                </button>
+                                <button onclick="sharePrompt()"
+                                    class="bg-panelHover hover:text-secondary text-gray-400 py-2.5 rounded-lg text-[10px] font-bold border border-gray-800 uppercase tracking-tighter">
+                                    <i class="fa-solid fa-share-nodes mr-1"></i> Compartir
+                                </button>
+                                <button onclick="savePrompt()"
+                                    class="col-span-2 bg-panelHover text-gray-400 py-2.5 rounded-lg text-[10px] font-bold border border-gray-800 uppercase tracking-tighter">
+                                    <i class="fa-regular fa-bookmark mr-1"></i> Guardar Biblioteca
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const DATA = {
+            clothing: [
+                { v: "N/A", h: "(Sin aplicar)" }, { v: "Matte black tactical exoskeleton", h: "(Exoesqueleto táctico negro mate)" }, { v: "Iridescent rain poncho", h: "(Poncho de lluvia iridiscente)" }, { v: "Cyber-kimono style", h: "(Estilo cyber-kimono)" }, { v: "Victorian velvet gown", h: "(Vestido de terciopelo victoriano)" }, { v: "Scrap-yard cyborg plating", h: "(Placas de cyborg de desguace)" }, { v: "Minimalist white tunic", h: "(Túnica blanca minimalista)" }, { v: "Street techwear with neons", h: "(Techwear con neones)" }, { v: "Liquid-metal body suit", h: "(Traje de metal líquido)" }, { v: "Bio-luminescent fibers", h: "(Fibras bioluminiscentes)" }, { v: "Rugged wasteland leather", h: "(Cuero rústico de páramo)" }, { v: "Carbon-fiber flight suit", h: "(Traje de vuelo de fibra carbono)" }, { v: "Regal cloak with silver", h: "(Capa real con plata)" }, { v: "Astronaut hardsuit", h: "(Traje espacial rígido)" }, { v: "Space pilot jumpsuit", h: "(Mono de piloto espacial)" }, { v: "Digital camo ghillie", h: "(Traje ghillie camuflaje digital)" }, { v: "Silk robes for zero-g", h: "(Túnicas de seda para gravedad cero)" }, { v: "Dark gothic trench coat", h: "(Gabardina gótica oscura)" }, { v: "Industrial oily overall", h: "(Mono industrial aceitoso)" }, { v: "Tribal furs with tech", h: "(Pieles tribales con tecnología)" }, { v: "3D-printed plastic armor", h: "(Armadura de plástico 3D)" }
+            ],
+            weather: [
+                { v: "N/A", h: "(Sin aplicar)" }, { v: "Heavy neon-rain ripples", h: "(Lluvia de neón)" }, { v: "Dust storms", h: "(Tormentas de polvo)" }, { v: "Volumetric fog", h: "(Niebla volumétrica)" }, { v: "Floating embers", h: "(Embras flotantes)" }, { v: "Snowflake blizzards", h: "(Tormentas de nieve)" }, { v: "Golden-hour dust", h: "(Polvo en hora dorada)" }, { v: "Acid-green gas clouds", h: "(Nubes de gas verde)" }, { v: "Static electricity sparks", h: "(Chispas estáticas)" }, { v: "Underwater bubbles", h: "(Burbujas submarinas)" }, { v: "Space vacuum clear", h: "(Vacío del espacio)" }, { v: "Purple thunderstorm", h: "(Tormenta púrpura)" }, { v: "Mist marshland", h: "(Pantano con niebla)" }, { v: "Heat haze distortion", h: "(Distorsión por calor)" }, { v: "Light ascension", h: "(Ascensión de luz)" }, { v: "Polluted grey smog", h: "(Smog gris)" }, { v: "Monsoon rain", h: "(Lluvia de monzón)" }, { v: "Starlit clear night", h: "(Noche estrellada)" }, { v: "Bioluminescent currents", h: "(Corrientes bioluminiscentes)" }, { v: "Techno-glitch artifacts", h: "(Artefactos de glitch)" }, { v: "Zero-g droplets", h: "(Gotas en gravedad cero)" }
+            ],
+            shot: [
+                { v: "Medium-wide shot", h: "(Plano medio largo)" }, { v: "Extreme close up", h: "(Primerísimo primer plano)" }, { v: "Close up shot", h: "(Primer plano)" }, { v: "Medium shot", h: "(Plano medio)" }, { v: "Wide establishing shot", h: "(Plano general)" }, { v: "Extreme wide shot", h: "(Gran plano general)" }, { v: "High-angle shot", h: "(Plano picado)" }, { v: "Low-angle hero shot", h: "(Plano contrapicado)" }, { v: "Over-the-shoulder shot", h: "(Sobre el hombro)" }, { v: "POV (Point of view) shot", h: "(Plano subjetivo)" }, { v: "Crane shot", h: "(Plano grúa)" }, { v: "FPV drone dynamic", h: "(Dron FPV dinámico)" }, { v: "Dutch angle", h: "(Plano inclinado)" }, { v: "Two-shot framing", h: "(Plano de dos)" }, { v: "Cowboy shot", h: "(Plano americano)" }, { v: "Macro insert shot", h: "(Plano macro)" }, { v: "Bird's-eye view", h: "(Plano cenital)" }, { v: "Worm's-eye view", h: "(Plano nadir)" }, { v: "Profile shot", h: "(Plano de perfil)" }, { v: "Full body shot", h: "(Plano entero)" }, { v: "Tracking side shot", h: "(Seguimiento lateral)" }, { v: "Handheld shaky", h: "(Camara en mano)" }, { v: "Drone sweep", h: "(Barrido de dron)" }, { v: "Static locked-off", h: "(Cámara bloqueada)" }, { v: "Dolly forward", h: "(Dolly hacia adelante)" }
+            ],
+            lens: [
+                { v: "85mm f/1.2 portrait", h: "(85mm Retrato nítido)" }, { v: "35mm anamorphic", h: "(35mm Anamórfico cine)" }, { v: "14mm ultra-wide", h: "(14mm Ultra gran angular)" }, { v: "50mm prime human eye", h: "(50mm Visión humana)" }, { v: "100mm macro detail", h: "(100mm Macro detalle)" }, { v: "200mm telephoto", h: "(200mm Teleobjetivo)" }, { v: "Soft-focus dreamy", h: "(Foco suave ensueño)" }, { v: "Cooke S4 cinematic", h: "(Óptica Cooke S4)" }, { v: "Arri Alexa Zeiss look", h: "(Look Arri/Zeiss)" }, { v: "Tilt-shift miniature", h: "(Efecto miniatura)" }, { v: "Infrared thermal", h: "(Visión térmica)" }, { v: "CCTV security grit", h: "(Estética CCTV)" }, { v: "Pinhole raw focus", h: "(Foco estenopeico)" }, { v: "Broken lens flares", h: "(Lente roto con destellos)" }, { v: "Underwater housing", h: "(Óptica submarina)" }, { v: "Spy hidden camera", h: "(Cámara espía)" }, { v: "Retro CRT scanlines", h: "(Lente CRT retro)" }, { v: "Split diopter dual focus", h: "(Foco dual compartido)" }, { v: "Zoom burst effect", h: "(Efecto ráfaga zoom)" }, { v: "Bolex 16mm film", h: "(Cine 16mm)" }, { v: "Techniscope wide", h: "(Formato Techniscope)" }, { v: "Imax 70mm fidelity", h: "(Imax 70mm alta fidelidad)" }, { v: "Petzval swirly bokeh", h: "(Bokeh circular Petzval)" }, { v: "GoPro action cam", h: "(Cámara acción ancha)" }, { v: "Microscope objective", h: "(Macro microscopio)" }
+            ],
+            lighting: [
+                { v: "Cinematic Chiaroscuro", h: "(Claroscuro alto contraste)" }, { v: "Golden hour warm", h: "(Luz cálida atardecer)" }, { v: "Volumetric god-rays", h: "(Rayos luz entre humo)" }, { v: "Neon magenta/cyan", h: "(Luz neón cian/rosa)" }, { v: "Ethereal moonlight", h: "(Luz de luna fría)" }, { v: "Emergency strobe", h: "(Flash de emergencia)" }, { v: "Studio key light", h: "(Luz de estudio principal)" }, { v: "Bioluminescent glow", h: "(Brillo bioluminiscente)" }, { v: "Dappled sunlight", h: "(Luz entre hojas)" }, { v: "Flickering campfire", h: "(Luz de fogata)" }, { v: "Cyberpunk sodium vapor", h: "(Luz de vapor de sodio)" }, { v: "High-key white", h: "(Clave alta blanca nítida)" }, { v: "Low-key noir", h: "(Sombras noir oscuras)" }, { v: "Dynamic screen reflex", h: "(Reflejos de pantalla)" }, { v: "Molten lava glow", h: "(Brillo de lava)" }, { v: "Police flashing siren", h: "(Luces policía)" }, { v: "Pastel sunrise", h: "(Amanecer pastel)" }, { v: "Vintage fluorescent", h: "(Fluorescente parpadeante)" }, { v: "Overcast daylight", h: "(Luz día nublado)" }, { v: "Flash photography direct", h: "(Flash directo crudo)" }, { v: "Interrogation spotlight", h: "(Foco de interrogatorio)" }, { v: "Keyboard under-glow", h: "(Luz desde teclado)" }, { v: "Teal and orange", h: "(Contraste azul/naranja)" }, { v: "Supernatural green", h: "(Aura verde fantasmal)" }, { v: "Ambient starlight", h: "(Luz de estrellas)" }
+            ],
+            style: [
+                { v: "Photorealistic 8k", h: "(Fotorrealista)" }, { v: "35mm Film style", h: "(Estilo cine 35mm)" }, { v: "Cyberpunk neon", h: "(Cyberpunk neón)" }, { v: "Studio Ghibli anime", h: "(Anime Ghibli)" }, { v: "Minimalist design", h: "(Diseño minimalista)" }, { v: "Extreme Macro", h: "(Macro extremo)" }, { v: "Dark fantasy Art", h: "(Arte fantasía oscura)" }, { v: "Ukiyo-e Japanese", h: "(Arte Japonés Ukiyo-e)" }, { v: "VHS Glitchcore", h: "(Glitch VHS)" }, { v: "Vaporwave 80s", h: "(Vaporwave 80s)" }, { v: "Oil painting", h: "(Pintura al óleo)" }, { v: "Pop-art comic", h: "(Pop-art cómic)" }, { v: "Steampunk gears", h: "(Mecánico Steampunk)" }, { v: "Surrealism", h: "(Surrealismo)" }, { v: "Vintage Polaroid", h: "(Polaroid antigua)" }, { v: "Architecture visual", h: "(Visual arquitectónico)" }, { v: "Double exposure", h: "(Doble exposición)" }, { v: "Noir monochrome", h: "(Noir blanco y negro)" }, { v: "Stop-motion clay", h: "(Stop-motion plastilina)" }, { v: "Low-poly 3D", h: "(3D moderno low-poly)" }
+            ],
+            env: [
+                { v: "Cyberpunk street neons", h: "(Calle neón)" }, { v: "Pristine beach ocean", h: "(Playa paradisíaca)" }, { v: "Forgotten jungle temple", h: "(Templo en jungla)" }, { v: "1920s classic library", h: "(Biblioteca antigua)" }, { v: "Abstract mirror void", h: "(Vacío de espejos)" }, { v: "Urban brick rooftop", h: "(Azotea de ladrillos)" }, { v: "Red Martian landscape", h: "(Paisaje marciano)" }, { v: "Sterile tech lab", h: "(Laboratorio estéril)" }, { v: "Abandoned space station", h: "(Estación espacial)" }, { v: "Rainy Tokyo street", h: "(Calle Tokio lluvia)" }, { v: "Zen Japanese garden", h: "(Jardín zen japonés)" }, { v: "Haunted mansion", h: "(Mansión encantada)" }, { v: "Subway carriage", h: "(Vagón de metro)" }, { v: "Route 66 highway", h: "(Carretera Ruta 66)" }, { v: "Himalayan peaks", h: "(Cimas del Himalaya)" }, { v: "Futuristic cloud city", h: "(Ciudad en nubes)" }, { v: "Deep coral reef", h: "(Arrecife de coral)" }, { v: "Factory sparks", h: "(Fábrica con chispas)" }, { v: "Cyclorama studio", h: "(Estudio ciclorama)" }, { v: "Post-apocalyptic ruins", h: "(Ruinas apocalípticas)" }
+            ]
+        };
+
+        function populateSelects() {
+            const f = (id, list) => {
+                const e = document.getElementById(id);
+                e.innerHTML = list.map(o => `<option value="${o.v}">${o.v} <small style="opacity:0.5">${o.h}</small></option>`).join('');
+            };
+            f('subject-clothing', DATA.clothing);
+            f('weather', DATA.weather);
+            f('shot-type', DATA.shot);
+            f('camera-lens', DATA.lens);
+            f('lighting', DATA.lighting);
+            f('visual-style', DATA.style);
+            f('environment', DATA.env);
+        }
+
+        function changeTheme(theme) {
+            document.body.className = `antialiased min-h-screen flex flex-col theme-${theme}`;
+            showToast(`Tema ${theme} activado`, 'magic');
+        }
+
+        function enterApp() {
+            document.getElementById('home-screen').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('home-screen').classList.add('hidden');
+                document.getElementById('workspace').classList.remove('hidden');
+                document.getElementById('workspace').classList.add('flex');
+                populateSelects();
+            }, 500);
+        }
+
+        function goHome() {
+            document.getElementById('workspace').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('home-screen').classList.remove('opacity-0'); }, 50);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = message;
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => { toast.classList.add('translate-x-full'); }, 3000);
+        }
+
+        function generatePrompt() {
+            const action = document.getElementById('main-action').value.trim();
+            const getVal = (id, cid) => {
+                const cv = document.getElementById(cid).value.trim();
+                return cv || document.getElementById(id).value;
+            };
+
+            let finalAction = action;
+            if (!finalAction) {
+                const opts = ["Robot soul emerging from quantum computer", "Cyberpunk rain in neo-tokio", "Distant astronaut looking at earth"];
+                finalAction = opts[Math.floor(Math.random() * opts.length)];
+            }
+
+            const style = getVal('visual-style', 'custom-visual-style');
+            const cloth = getVal('subject-clothing', 'custom-clothing');
+            const env = getVal('environment', 'custom-environment');
+            const weather = getVal('weather', 'custom-weather');
+            const shot = getVal('shot-type', 'custom-shot-type');
+            const lens = getVal('camera-lens', 'custom-camera-lens');
+            const light = getVal('lighting', 'custom-lighting');
+
+            let prompt = `[PROFESSIONAL AGENT PROMPT]\n`;
+            prompt += `Action: ${finalAction}.\nStyle: ${style}.\nClothing: ${cloth}.\nEnvironment: ${env}, ${weather}.\nCinematography: ${shot}, ${lens}, with ${light} lighting.`;
+
+            document.getElementById('output-prompt').value = prompt;
+            showToast("Prompt compilado con éxito", "success");
+        }
+
+        function copyPrompt() {
+            const op = document.getElementById('output-prompt');
+            if (op.value) { op.select(); document.execCommand('copy'); showToast("Copiado al portapapeles", "success"); }
+        }
+
+        function sharePrompt() {
+            if (document.getElementById('output-prompt').value && navigator.share) {
+                navigator.share({ title: 'PromptForge', text: document.getElementById('output-prompt').value });
+            } else { copyPrompt(); }
+        }
+
+        function savePrompt() {
+            showToast("Guardado en la biblioteca", "success");
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('upload-content').classList.add('hidden');
+                document.getElementById('file-preview-container').classList.remove('hidden');
+                document.getElementById('preview-name').textContent = file.name;
+                if (file.type.startsWith('image/')) {
+                    document.getElementById('preview-thumbnail').style.backgroundImage = `url('${URL.createObjectURL(file)}')`;
+                }
+                showToast("Archivo detectado", "success");
+            }
+        }
+
+        function clearFileUpload(e) {
+            if (e) { e.stopPropagation(); e.preventDefault(); }
+            document.getElementById('file-upload').value = "";
+            document.getElementById('file-preview-container').classList.add('hidden');
+            document.getElementById('upload-content').classList.remove('hidden');
+        }
+
+        function handleUrlInput() { if (document.getElementById('ref-url').value) clearFileUpload(null); }
+
+        function reverseEngineer() {
+            showToast("Analizando medio...", "magic");
+            setTimeout(() => {
+                document.getElementById('main-action').value = "Escena recreada profesionalmente basada en el archivo subido";
+                showToast("Prompt generado desde el medio", "success");
+            }, 1000);
+        }
+
+        function autoImprove() {
+            const area = document.getElementById('main-action');
+            if (area.value) area.value = `Cinematic masterwork: ${area.value}, incredible 8k detail, volumetric lighting.`;
+            showToast("Mejorado", "success");
+        }
+
+        function updateModelHints() {
+            showToast(`Configuración para ${document.getElementById('model-selector').value} lista`, "info");
+        }
+    </script>
+</body>
+
+</html>
